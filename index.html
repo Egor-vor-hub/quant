@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUANT — автономный торговый агент</title>
+<meta name="description" content="QUANT: AI-агент для алгоритмической торговли. Анализ рынка, исполнение сделок и управление риском без участия человека.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+<div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+
+<div class="ambient" aria-hidden="true">
+  <div class="blob blob--a"></div>
+  <div class="blob blob--b"></div>
+  <div class="blob blob--c"></div>
+</div>
+
+<header class="nav" id="siteNav">
+  <div class="container nav__inner">
+    <span class="nav__mark">quant<span>.</span></span>
+
+    <nav class="nav__links" id="navLinks">
+      <a href="#dashboard" class="nav__link">Dashboard</a>
+      <a href="#strategies" class="nav__link">Strategies</a>
+      <a href="#analytics" class="nav__link">Analytics</a>
+      <a href="#" class="nav__link" id="apiKeysLink">API Keys</a>
+      <a href="#settings" class="nav__link">Settings</a>
+    </nav>
+
+    <button class="connect-btn" id="connectBtn" data-tooltip="Подключить кошелёк или API-ключ">
+      <span class="connect-btn__dot"></span>
+      <span id="connectBtnLabel">Connect Wallet / API</span>
+    </button>
+
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO / DASHBOARD -->
+  <section class="hero" id="dashboard">
+    <div class="beam" aria-hidden="true">
+      <div class="beam__line"></div>
+      <div class="beam__glow"></div>
+      <div class="beam__glow beam__glow--wide"></div>
+    </div>
+    <div class="hero__waves" id="wavesBg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="hero__top">
+        <span class="hero__eyebrow">// Autonomous trading agent</span>
+        <h1 class="hero__title">Торгует, пока вы <span class="mark">спите</span>.</h1>
+        <p class="hero__sub">QUANT анализирует тысячи тикеров и исполняет сделки без участия человека — быстрее эмоций и быстрее рынка.</p>
+        <button class="hero__cta" id="heroCta">Получить ранний доступ →</button>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal__bar">
+          <div class="terminal__dots"><span></span><span></span><span></span></div>
+          <div class="terminal__tabs" id="tfTabs">
+            <button class="tf-tab active" data-tf="5m">5m</button>
+            <button class="tf-tab" data-tf="15m">15m</button>
+            <button class="tf-tab" data-tf="1h">1h</button>
+            <button class="tf-tab" data-tf="4h">4h</button>
+            <button class="tf-tab" data-tf="1D">1D</button>
+          </div>
+          <span class="terminal__live" id="liveBadge">LIVE</span>
+        </div>
+
+        <div class="terminal__body">
+          <div class="terminal__price">
+            <div class="price__pair">Цена исполнения</div>
+            <div class="price__num" id="priceNum">$3,412.84</div>
+            <span class="price__delta price__delta--up" id="priceDelta">▲ 2.4% за 24ч</span>
+          </div>
+
+          <div class="terminal__chart">
+            <svg id="chartSvg" viewBox="0 0 600 90" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#a78bfa" stop-opacity="0.45"/>
+                  <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path class="chart__area" id="chartArea" d=""/>
+              <path class="chart__line chart__path" id="chartLine" d=""/>
+              <line class="chart__guide" id="chartGuide" x1="0" y1="0" x2="0" y2="90"/>
+              <circle class="chart__dot" id="chartDot" r="3.5" cx="0" cy="0"/>
+              <rect class="chart__hit" id="chartHit" x="0" y="0" width="600" height="90"/>
+            </svg>
+            <div class="chart__tooltip" id="chartTooltip"></div>
+          </div>
+
+          <div class="terminal__log-head">
+            <div class="log-filters" id="logFilters">
+              <button class="log-filter active" data-filter="all">Все</button>
+              <button class="log-filter" data-filter="trade">Сделки</button>
+              <button class="log-filter" data-filter="signal">Сигналы</button>
+              <button class="log-filter" data-filter="error">Ошибки</button>
+            </div>
+            <button class="log-clear" id="logClear">Очистить</button>
+          </div>
+          <div class="terminal__log" id="terminalLog" data-filter="all"></div>
+        </div>
+
+        <div class="terminal__controls" id="settings">
+          <div class="controls__actions">
+            <button class="act-btn act-btn--start" id="btnStart" data-tooltip="Запустить автономную торговлю">▶ Start Agent</button>
+            <button class="act-btn act-btn--pause" id="btnPause" disabled data-tooltip="Приостановить без закрытия позиций">⏸ Pause Bot</button>
+            <button class="act-btn act-btn--stop" id="btnStop" disabled data-tooltip="Закрыть все позиции немедленно">⛔ Emergency Stop</button>
+            <button class="act-btn act-btn--override" id="btnOverride" data-tooltip="Взять сделки под ручной контроль">✋ Manual Override</button>
+          </div>
+
+          <div class="controls__sliders">
+            <label class="slider">
+              <div class="slider__head"><span>Risk Level</span><span id="riskVal">3%</span></div>
+              <input type="range" min="1" max="10" value="3" id="riskRange">
+            </label>
+            <label class="slider">
+              <div class="slider__head"><span>Max Drawdown</span><span id="ddVal">12%</span></div>
+              <input type="range" min="5" max="30" value="12" id="ddRange">
+            </label>
+            <label class="slider">
+              <div class="slider__head"><span>Position Size</span><span id="posVal">500 USDT</span></div>
+              <input type="range" min="50" max="5000" step="50" value="500" id="posRange">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero__meta">
+        <span><strong>Задержка исполнения</strong> — 40мс</span>
+        <span><strong>Аптайм</strong> — 24/7</span>
+        <span><strong>Активных стратегий</strong> — 6</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTEGRATIONS -->
+  <section class="integrations">
+    <div class="container integrations__inner">
+      <span class="integrations__label">Работает поверх</span>
+      <div class="integrations__list">
+        <span>Binance</span><span>Bybit</span><span>OKX</span><span>Kraken</span><span>Coinbase</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="container">
+      <span class="eyebrow reveal">Как это работает</span>
+      <h2 class="section-title reveal">От подключения до первой сделки — три шага</h2>
+
+      <div class="steps">
+        <div class="step reveal">
+          <span class="step__num">01</span>
+          <h3>Подключите</h3>
+          <p>Кошелёк или API-ключ биржи — без передачи паролей, только права на торговлю.</p>
+        </div>
+        <div class="step reveal">
+          <span class="step__num">02</span>
+          <h3>Настройте лимиты</h3>
+          <p>Risk Level, Max Drawdown, размер позиции — на ваших условиях, не по умолчанию.</p>
+        </div>
+        <div class="step reveal">
+          <span class="step__num">03</span>
+          <h3>Наблюдайте</h3>
+          <p>Агент торгует, вы видите каждую сделку и каждое решение в реальном времени.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STRATEGIES -->
+  <section class="section" id="strategies">
+    <div class="container">
+      <span class="eyebrow reveal">Возможности</span>
+      <h2 class="section-title reveal">Четыре модуля одного решения</h2>
+      <p class="section-note reveal">Выберите модуль, чтобы увидеть его параметры и последние события.</p>
+
+      <div class="caps" id="capsGrid">
+        <button class="cap active" data-module="analysis">
+          <div class="cap__num">01</div>
+          <h3>Анализ рынка</h3>
+          <p>Обрабатывает тысячи тикеров в реальном времени и ищет статистические аномалии до того, как их увидит человек.</p>
+        </button>
+        <button class="cap" data-module="execution">
+          <div class="cap__num">02</div>
+          <h3>Авто-исполнение</h3>
+          <p>Открывает и закрывает позиции без задержки на раздумья и без участия трейдера.</p>
+        </button>
+        <button class="cap" data-module="risk">
+          <div class="cap__num">03</div>
+          <h3>Управление риском</h3>
+          <p>Жёсткие лимиты на просадку и объём позиции встроены в каждую сделку заранее.</p>
+        </button>
+        <button class="cap" data-module="monitor">
+          <div class="cap__num">04</div>
+          <h3>Мониторинг 24/7</h3>
+          <p>Не спит, не устаёт и не поддаётся эмоциям посреди волатильного рынка.</p>
+        </button>
+      </div>
+
+      <div class="module-detail reveal" id="moduleDetail"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="section" id="stats">
+    <div class="container">
+      <span class="eyebrow reveal">Цифры</span>
+      <h2 class="section-title reveal">Результат считается, а не рассказывается</h2>
+
+      <div class="stats-grid">
+        <div class="stat-block reveal">
+          <div class="stat-block__num" data-count="42.6" data-prefix="$" data-suffix="M+" data-decimals="1">$0.0M+</div>
+          <div class="stat-block__label">Объём сделок за 12 месяцев</div>
+        </div>
+        <div class="stat-block reveal">
+          <div class="stat-block__num" data-count="312940" data-decimals="0">0</div>
+          <div class="stat-block__label">Исполненных ордеров</div>
+        </div>
+        <div class="stat-block reveal">
+          <div class="stat-block__num" data-count="99.98" data-suffix="%" data-decimals="2">0.00%</div>
+          <div class="stat-block__label">Аптайм системы</div>
+        </div>
+        <div class="stat-block reveal">
+          <div class="stat-block__num" data-count="6" data-decimals="0">0</div>
+          <div class="stat-block__label">Активных стратегий одновременно</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANALYTICS / PROOF -->
+  <section class="section" id="analytics">
+    <div class="container proof">
+      <div class="proof__img reveal">
+        <img src="photos/chess-move.jpg" alt="Роботизированный манипулятор точно берёт шахматную фигуру">
+      </div>
+      <div class="reveal">
+        <span class="eyebrow">Механика</span>
+        <h2 class="section-title">Внутри — не интуиция, а исполнение</h2>
+        <p style="margin-top:18px; color:var(--dim); font-size:14px; line-height:1.7; max-width:420px;">Каждая сделка — результат расчёта, а не порыва. Решение принимается моделью и исполняется без колебаний.</p>
+
+        <div class="proof__stats">
+          <div class="stat">
+            <div class="stat__num">40мс</div>
+            <div class="stat__label">Среднее время реакции на сигнал</div>
+          </div>
+          <div class="stat">
+            <div class="stat__num">0</div>
+            <div class="stat__label">Сделок на эмоциях</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section" id="testimonials">
+    <div class="container">
+      <span class="eyebrow reveal">Отзывы</span>
+      <h2 class="section-title reveal">Что говорят те, кто уже доверил сделки агенту</h2>
+      <p class="section-note reveal">Демонстрационные отзывы для портфолио-кейса — не привязаны к реальным пользователям.</p>
+
+      <div class="testimonials">
+        <div class="testimonial reveal">
+          <p class="testimonial__quote">«QUANT не спит и не сомневается — именно то, чего не хватало моей ручной стратегии.»</p>
+          <div class="testimonial__who">
+            <span class="testimonial__avatar">ИВ</span>
+            <div>
+              <div class="testimonial__name">Игорь В.</div>
+              <div class="testimonial__role">алго-трейдер</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <p class="testimonial__quote">«Настроил лимиты один раз и просто наблюдаю за логом. Ни одной сделки на эмоциях за три месяца.»</p>
+          <div class="testimonial__who">
+            <span class="testimonial__avatar">МК</span>
+            <div>
+              <div class="testimonial__name">Марина К.</div>
+              <div class="testimonial__role">частный инвестор</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <p class="testimonial__quote">«Прозрачный лог решений — вижу, почему агент открыл или закрыл позицию, а не гадаю.»</p>
+          <div class="testimonial__who">
+            <span class="testimonial__avatar">ДС</span>
+            <div>
+              <div class="testimonial__name">Дмитрий С.</div>
+              <div class="testimonial__role">управляющий портфелем</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <span class="eyebrow reveal">Вопросы</span>
+      <h2 class="section-title reveal">Коротко о главном</h2>
+
+      <div class="faq-list">
+        <div class="faq-item reveal">
+          <button class="faq-item__q">Нужен ли кошелёк, чтобы попробовать?<span class="faq-item__icon">+</span></button>
+          <div class="faq-item__a"><p>Нет. Можно подключить только API-ключ биржи с правами на торговлю — без доступа к выводу средств.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-item__q">На каких биржах работает агент?<span class="faq-item__icon">+</span></button>
+          <div class="faq-item__a"><p>Binance, Bybit, OKX, Kraken, Coinbase — список бирж выше поддерживается на уровне API-интеграций.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-item__q">Что произойдёт при резком падении рынка?<span class="faq-item__icon">+</span></button>
+          <div class="faq-item__a"><p>Сработает лимит Max Drawdown — позиции закрываются автоматически, дальнейшая торговля приостанавливается до вашего решения.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-item__q">Можно ли вмешаться в сделку вручную?<span class="faq-item__icon">+</span></button>
+          <div class="faq-item__a"><p>Да, кнопка Manual Override передаёт контроль вам в любой момент, не останавливая агента полностью.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="container foot__grid">
+    <div class="foot__brand">
+      <span class="foot__mark">quant.</span>
+      <p class="foot__tagline">Автономный торговый агент. Портфолио-кейс NODEX Studio.</p>
+    </div>
+    <div class="foot__col">
+      <span class="foot__col-title">Продукт</span>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#strategies">Strategies</a>
+      <a href="#analytics">Analytics</a>
+    </div>
+    <div class="foot__col">
+      <span class="foot__col-title">Ресурсы</span>
+      <a href="#how">Как это работает</a>
+      <a href="#faq">Вопросы</a>
+      <a href="#settings">Settings</a>
+    </div>
+    <div class="foot__col">
+      <button class="foot__top" id="backToTop">↑ Наверх</button>
+    </div>
+  </div>
+  <div class="container foot__bottom">
+    <p class="foot__disclaimer">Учебный портфолио-кейс. Не является инвестиционной рекомендацией и не привязан к реальному финансовому продукту.</p>
+  </div>
+</footer>
+
+<!-- CONNECT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal__head">
+      <h3 id="modalTitle">Подключение</h3>
+      <button class="modal__close" id="modalClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="modal__body">
+      <button class="modal__option" id="modalWalletBtn" type="button">
+        <span>Подключить кошелёк</span>
+        <span class="modal__option-sub">MetaMask, WalletConnect</span>
+      </button>
+      <div class="modal__divider"><span>или</span></div>
+      <label class="modal__field">
+        <span>API-ключ</span>
+        <input type="text" id="apiKeyInput" placeholder="sk_live_••••••••••••" autocomplete="off">
+      </label>
+      <button class="btn-primary modal__submit" id="apiKeySubmit" type="button">Сохранить ключ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
