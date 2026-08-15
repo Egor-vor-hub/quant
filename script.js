@@ -37,10 +37,12 @@ document.querySelectorAll(".faq-item").forEach((item) => {
     document.querySelectorAll(".faq-item.open").forEach((openItem) => {
       openItem.classList.remove("open");
       openItem.querySelector(".faq-item__a").style.maxHeight = null;
+      openItem.querySelector(".faq-item__q").setAttribute("aria-expanded", "false");
     });
     if (!isOpen) {
       item.classList.add("open");
       a.style.maxHeight = a.scrollHeight + "px";
+      q.setAttribute("aria-expanded", "true");
     }
   });
 });
@@ -110,7 +112,7 @@ navLinks.querySelectorAll(".nav__link").forEach((link) => {
   link.addEventListener("click", () => navLinks.classList.remove("open"));
 });
 
-const navSections = ["dashboard", "strategies", "analytics"]
+const navSections = ["dashboard", "how", "strategies", "stats", "analytics", "testimonials", "faq"]
   .map((id) => document.getElementById(id))
   .filter(Boolean);
 const navAnchorLinks = document.querySelectorAll('.nav__link[href^="#"]');
@@ -134,8 +136,16 @@ const modalWalletBtn = document.getElementById("modalWalletBtn");
 const apiKeyInput = document.getElementById("apiKeyInput");
 const apiKeySubmit = document.getElementById("apiKeySubmit");
 
-function openModal() { modalOverlay.classList.add("open"); }
-function closeModal() { modalOverlay.classList.remove("open"); }
+let modalTrigger = null;
+function openModal(e) {
+  modalTrigger = e && e.currentTarget ? e.currentTarget : document.activeElement;
+  modalOverlay.classList.add("open");
+  modalWalletBtn.focus();
+}
+function closeModal() {
+  modalOverlay.classList.remove("open");
+  if (modalTrigger) modalTrigger.focus();
+}
 
 connectBtn.addEventListener("click", openModal);
 const heroCta = document.getElementById("heroCta");
@@ -167,12 +177,12 @@ apiKeySubmit.addEventListener("click", () => {
 /* ---------- Live-feeling price ticker ---------- */
 const priceNum = document.getElementById("priceNum");
 const priceDelta = document.getElementById("priceDelta");
-const REF_PRICE = 3412.84;
-let price = REF_PRICE;
+let refPrice = 3412.84;
+let price = refPrice;
 
 function renderPrice() {
   priceNum.textContent = "$" + price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const pct = ((price - REF_PRICE) / REF_PRICE) * 100 + 2.4;
+  const pct = ((price - refPrice) / refPrice) * 100 + 2.4;
   const up = pct >= 0;
   priceDelta.textContent = `${up ? "▲" : "▼"} ${Math.abs(pct).toFixed(1)}% за 24ч`;
   priceDelta.classList.toggle("price__delta--up", up);
@@ -321,6 +331,12 @@ tfTabs.addEventListener("click", (e) => {
   if (!btn) return;
   tfTabs.querySelectorAll(".tf-tab").forEach((b) => b.classList.toggle("active", b === btn));
   renderChart(btn.dataset.tf, true);
+
+  const last = currentPoints[currentPoints.length - 1];
+  refPrice = last.price;
+  price = last.price;
+  renderPrice();
+
   showToast(`Таймфрейм: ${btn.dataset.tf}`);
 });
 
@@ -363,7 +379,7 @@ const btnPause = document.getElementById("btnPause");
 const btnStop = document.getElementById("btnStop");
 const btnOverride = document.getElementById("btnOverride");
 const liveBadge = document.getElementById("liveBadge");
-let agentState = "stopped";
+let agentState = "running";
 let overrideOn = false;
 
 function updateAgentUI() {

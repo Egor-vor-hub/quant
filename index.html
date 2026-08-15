@@ -112,9 +112,9 @@
 
         <div class="terminal__controls" id="settings">
           <div class="controls__actions">
-            <button class="act-btn act-btn--start" id="btnStart" data-tooltip="Запустить автономную торговлю">▶ Start Agent</button>
-            <button class="act-btn act-btn--pause" id="btnPause" disabled data-tooltip="Приостановить без закрытия позиций">⏸ Pause Bot</button>
-            <button class="act-btn act-btn--stop" id="btnStop" disabled data-tooltip="Закрыть все позиции немедленно">⛔ Emergency Stop</button>
+            <button class="act-btn act-btn--start is-active" id="btnStart" disabled data-tooltip="Запустить автономную торговлю">▶ Start Agent</button>
+            <button class="act-btn act-btn--pause" id="btnPause" data-tooltip="Приостановить без закрытия позиций">⏸ Pause Bot</button>
+            <button class="act-btn act-btn--stop" id="btnStop" data-tooltip="Закрыть все позиции немедленно">⛔ Emergency Stop</button>
             <button class="act-btn act-btn--override" id="btnOverride" data-tooltip="Взять сделки под ручной контроль">✋ Manual Override</button>
           </div>
 
@@ -315,19 +315,19 @@
 
       <div class="faq-list">
         <div class="faq-item reveal">
-          <button class="faq-item__q">Нужен ли кошелёк, чтобы попробовать?<span class="faq-item__icon">+</span></button>
+          <button class="faq-item__q" aria-expanded="false">Нужен ли кошелёк, чтобы попробовать?<span class="faq-item__icon">+</span></button>
           <div class="faq-item__a"><p>Нет. Можно подключить только API-ключ биржи с правами на торговлю — без доступа к выводу средств.</p></div>
         </div>
         <div class="faq-item reveal">
-          <button class="faq-item__q">На каких биржах работает агент?<span class="faq-item__icon">+</span></button>
+          <button class="faq-item__q" aria-expanded="false">На каких биржах работает агент?<span class="faq-item__icon">+</span></button>
           <div class="faq-item__a"><p>Binance, Bybit, OKX, Kraken, Coinbase — список бирж выше поддерживается на уровне API-интеграций.</p></div>
         </div>
         <div class="faq-item reveal">
-          <button class="faq-item__q">Что произойдёт при резком падении рынка?<span class="faq-item__icon">+</span></button>
+          <button class="faq-item__q" aria-expanded="false">Что произойдёт при резком падении рынка?<span class="faq-item__icon">+</span></button>
           <div class="faq-item__a"><p>Сработает лимит Max Drawdown — позиции закрываются автоматически, дальнейшая торговля приостанавливается до вашего решения.</p></div>
         </div>
         <div class="faq-item reveal">
-          <button class="faq-item__q">Можно ли вмешаться в сделку вручную?<span class="faq-item__icon">+</span></button>
+          <button class="faq-item__q" aria-expanded="false">Можно ли вмешаться в сделку вручную?<span class="faq-item__icon">+</span></button>
           <div class="faq-item__a"><p>Да, кнопка Manual Override передаёт контроль вам в любой момент, не останавливая агента полностью.</p></div>
         </div>
       </div>
@@ -340,7 +340,7 @@
   <div class="container foot__grid">
     <div class="foot__brand">
       <span class="foot__mark">quant.</span>
-      <p class="foot__tagline">Автономный торговый агент. Портфолио-кейс NODEX Studio.</p>
+      <p class="foot__tagline">Автономный торговый агент. Учебный портфолио-кейс.</p>
     </div>
     <div class="foot__col">
       <span class="foot__col-title">Продукт</span>
