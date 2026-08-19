@@ -244,7 +244,33 @@
   <section class="section" id="analytics">
     <div class="container proof">
       <div class="proof__img reveal">
-        <img src="photos/chess-move.jpg" alt="Роботизированный манипулятор точно берёт шахматную фигуру">
+        <div class="viz">
+          <div class="viz__row">
+            <span class="viz__label">СИГНАЛ</span>
+            <div class="viz__ticks" aria-hidden="true">
+              <span class="vt vt--g"></span><span class="vt vt--l"></span><span class="vt vt--g"></span>
+              <span class="vt vt--g"></span><span class="vt vt--l"></span><span class="vt vt--g"></span>
+              <span class="vt vt--l"></span><span class="vt vt--g"></span><span class="vt vt--g"></span>
+              <span class="vt vt--g"></span><span class="vt vt--l"></span><span class="vt vt--g"></span>
+            </div>
+          </div>
+          <div class="viz__connector" aria-hidden="true"></div>
+          <div class="viz__row viz__row--model">
+            <span class="viz__label">МОДЕЛЬ</span>
+            <div class="viz__node" aria-hidden="true">
+              <span class="viz__node-ring"></span>
+              <span class="viz__node-core"></span>
+            </div>
+          </div>
+          <div class="viz__connector" aria-hidden="true"></div>
+          <div class="viz__row viz__row--exec">
+            <span class="viz__label">ИСПОЛНЕНИЕ</span>
+            <div class="viz__ticket">
+              <span class="viz__ticket-side">BUY · ETH/USD</span>
+              <span class="viz__ticket-time">40мс</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="reveal">
         <span class="eyebrow">Механика</span>
